@@ -12,6 +12,7 @@ public class ModReqMain extends JavaPlugin
     {
         this.logger = new Logger(this.getLogger());
 
+
     }
 
     public void onDisable()
