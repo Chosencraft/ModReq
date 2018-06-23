@@ -1,5 +1,6 @@
 package com.chosencraft.www.modreq;
 
+import com.chosencraft.www.modreq.databases.sql.RequestInterface;
 import com.chosencraft.www.modreq.utils.Logger;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -12,6 +13,7 @@ public class ModReqMain extends JavaPlugin
     {
         this.logger = new Logger(this.getLogger());
 
+        connectToDatabase();
 
     }
 
@@ -21,5 +23,10 @@ public class ModReqMain extends JavaPlugin
     }
 
 
+    private void connectToDatabase()
+    {
+        new RequestInterface(this);
+
+    }
 
 }
