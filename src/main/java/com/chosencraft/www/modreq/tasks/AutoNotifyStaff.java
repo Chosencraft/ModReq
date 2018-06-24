@@ -15,12 +15,18 @@ public class AutoNotifyStaff implements Runnable
 {
     private static String precedingMessage = ChatColor.BLUE + "There are currently " + ChatColor.RED + "%i" + ChatColor.BLUE + " unclaimed requests outstanding!";
     // [reqID] [playername] message                          req, pname, msg
-    private String format = ChatColor.BLUE + "[ " + ChatColor.RED + "%i" + ChatColor.BLUE +" ]" +
+    private static String format = ChatColor.BLUE + "[ " + ChatColor.RED + "%i" + ChatColor.BLUE +" ]" +
             ChatColor.GOLD + "[ " + ChatColor.AQUA + "%s" + ChatColor.GOLD + " ] " +
             ChatColor.GREEN + "%s";
 
     @Override
     public void run()
+    {
+        executeServerNotifier();
+    }
+
+
+    public static void executeServerNotifier()
     {
         LinkedList<ModReq> reqs = ModReqCalls.getUnclaimedModReqs();
 
@@ -30,12 +36,21 @@ public class AutoNotifyStaff implements Runnable
             {
                 if (player.hasPermission(Permissions.PERM_UNCLAIMED_NOTIFY))
                 {
-                    player.sendMessage(String.format(precedingMessage, reqs.size()));
-                    for (ModReq modReq : reqs)
-                    {
-                        player.sendMessage(String.format(format,  modReq.getID(), modReq.getRequester(), modReq.getRequestMessage()));
-                    }
+                    executeSingleNotifier(player);
                 }
+            }
+        }
+    }
+
+    public static void executeSingleNotifier(Player player)
+    {
+        LinkedList<ModReq> reqs = ModReqCalls.getUnclaimedModReqs();
+        if (reqs.size() != 0)
+        {
+            player.sendMessage(String.format(precedingMessage, reqs.size()));
+            for (ModReq modReq : reqs)
+            {
+                player.sendMessage(String.format(format,  modReq.getID(), modReq.getRequester(), modReq.getRequestMessage()));
             }
         }
 
