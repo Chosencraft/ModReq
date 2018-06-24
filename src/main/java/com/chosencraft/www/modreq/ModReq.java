@@ -1,5 +1,6 @@
 package com.chosencraft.www.modreq;
 
+import com.chosencraft.www.modreq.utils.RequestState;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 
@@ -12,17 +13,6 @@ import java.util.UUID;
  */
 public class ModReq
 {
-
-    /**
-     * values used to specify the state of a request
-     */
-    private enum RequestState
-    {
-        CLAIMED,
-        UNCLAIMED,
-        FINISHED,
-        ORPHANED
-    }
 
     /**  Request number of the ID*/
     private int     requestID;
@@ -111,6 +101,24 @@ public class ModReq
         this.requestID = requestID;
     }
 
+
+    /**
+     * Returns the ID of the ModReq
+     * @return ID of the ModReq
+     */
+    public int getID()
+    {
+        return this.requestID;
+    }
+
+    /**
+     * Returns state of the ModReq
+     * @return RequestState of ModReq
+     */
+    public RequestState getState()
+    {
+        return this.state;
+    }
 
     /**
      * Get Requester UUID
