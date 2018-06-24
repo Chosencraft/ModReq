@@ -24,6 +24,9 @@ public class ModReq
         ORPHANED
     }
 
+    /**  Request number of the ID*/
+    private int     requestID;
+
     /** UUID of requester*/
     private  UUID    requesterUUID;
     /** Name of requester */
@@ -48,7 +51,7 @@ public class ModReq
     private String  taskResolution;
     /** State of the request, ENUM*/
     private RequestState state;
-    /** Timestamp of ModReq creation Format: (yyyy-mm-dd hh-mm:ss) */
+    /** Timestamp of the request*/
     private String timestamp;
 
 
@@ -86,7 +89,7 @@ public class ModReq
      * @param requestMessage Message made by the requester
      */
     public ModReq(UUID requesterUUID, UUID worldUUID, int locationX, int locationY, int locationZ, String requestMessage,
-    UUID taskOwnerUUID, String taskResolution, String timestamp, String requestState)
+    UUID taskOwnerUUID, String taskResolution, String timestamp, String requestState, int requestID)
     {
         this.requesterUUID = requesterUUID;
 
@@ -105,6 +108,7 @@ public class ModReq
         this.taskResolution = taskResolution;
         this.timestamp = timestamp;
         this.state = parseRequestState(requestState);
+        this.requestID = requestID;
     }
 
 
@@ -228,6 +232,13 @@ public class ModReq
     private void updateRequestInDatabase()
     {
         //TODO: manually update to SQL
+    }
+
+    private void addRequestToDatabase()
+    {
+        //TODO: add to database
+        //TODO: also retrieve the task via all info specifications and get ID number
+        //this.requestID = requestID() ?
     }
 
     /**
