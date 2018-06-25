@@ -37,6 +37,7 @@ public class SQL extends Database
         String database = config.getString("database.mysql.database");
         String host =  config.getString("database.mysql.host");
         int port =  config.getInt("database.mysql.port");
+        config.getValues(false);
 
         // Added end string to go over HTTP instead of HTTPS because I was having issues setting up SSL for mySQL (website works fine though)
         // Also auto reconnect flag

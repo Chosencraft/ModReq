@@ -1,5 +1,7 @@
 package com.chosencraft.www.modreq.databases;
 
+import java.util.regex.Pattern;
+
 /**
  * Class used to forcefully pass in queries and strip
  * them of potentially downfall results
@@ -33,7 +35,11 @@ public class Query
      */
     private void stripQuery()
     {
-        //TODO : strip query of bad things
-        // TODO: strip to alphanumerics plus basic simples
+        // word characters , space, @, and hyphens
+        String regex = "[^\\w\\s\\.@-]";
+
+        // strip with regex pattern
+        this.query = this.query.replaceAll(regex, "");
+
     }
 }
