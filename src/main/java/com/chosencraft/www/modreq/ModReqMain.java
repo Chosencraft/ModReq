@@ -1,5 +1,7 @@
 package com.chosencraft.www.modreq;
 
+import com.chosencraft.www.modreq.commands.ModReqCommand;
+import com.chosencraft.www.modreq.commands.RequestCommand;
 import com.chosencraft.www.modreq.databases.sql.RequestInterface;
 import com.chosencraft.www.modreq.listeners.NotifyStaffOnLogin;
 import com.chosencraft.www.modreq.tasks.AutoNotifyStaff;
@@ -12,6 +14,8 @@ public class ModReqMain extends JavaPlugin
 {
 
     public static Logger logger;
+    public static RequestInterface request;
+
 
     public void onEnable()
     {
@@ -35,7 +39,7 @@ public class ModReqMain extends JavaPlugin
      */
     private void connectToDatabase()
     {
-        new RequestInterface(this);
+        this.request = new RequestInterface(this);
 
     }
 
@@ -54,7 +58,8 @@ public class ModReqMain extends JavaPlugin
      */
     private void registerCommands()
     {
-
+        getCommand("modreq").setExecutor(new ModReqCommand());
+        getCommand("request").setExecutor(new RequestCommand());
     }
 
     /**

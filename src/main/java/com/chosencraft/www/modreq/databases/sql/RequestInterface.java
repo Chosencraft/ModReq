@@ -18,7 +18,7 @@ public class RequestInterface
 
     public RequestInterface(Plugin plugin)
     {
-        // Initialize Connection
+        // Initialize Connection if not already connectioned
         this.sqlConnection = new SQL(plugin);
         if ( this.sqlConnection.connect() )
         {
