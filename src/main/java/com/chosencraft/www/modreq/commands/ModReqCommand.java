@@ -9,6 +9,8 @@ import com.chosencraft.www.modreq.databases.sql.SQL;
 import com.chosencraft.www.modreq.utils.Logger;
 import com.chosencraft.www.modreq.utils.RequestState;
 import net.md_5.bungee.api.ChatColor;
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -55,7 +57,7 @@ public class ModReqCommand implements CommandExecutor
                 claimReq(player,args);
                 break;
             case "unclaim":
-
+                unclaimReq(player,args);
                 break;
             case "reopen":
 
@@ -69,7 +71,7 @@ public class ModReqCommand implements CommandExecutor
 
                 break;
             case "tp":
-
+                teleportToReq(player, args);
                 break;
 
                 default:
@@ -78,6 +80,36 @@ public class ModReqCommand implements CommandExecutor
         }
 
         return true;
+    }
+
+
+    private void teleportToReq(Player player, String[] args)
+    {
+        if (args.length < 2)
+        {
+            player.sendMessage(specifyID);
+            return;
+        }
+        else
+        {
+            int taskID = parseTaskID(args[1]);
+            if (taskID != -1)
+            {
+                Query query = new Query("SELECT xLocation,yLocation,zLocation,worldUUID FROM ? WHERE requestID=?");
+                ResultSet results = request.executePreparedStatement(query, SQL.tableName, String.valueOf(taskID));
+
+                while
+
+                Location location = new Location(Bukkit.getWorld(worldUUID), xLoc, yLoc, zLoc);
+                player.teleport(location);
+                player.sendMessage(prefix + "Teleported to task " + taskID);
+            }
+            else
+            {
+                player.sendMessage(prefix + "That is not a valid taskID!");
+            }
+
+        }
     }
 
     /**
@@ -98,7 +130,7 @@ public class ModReqCommand implements CommandExecutor
             if (taskID != -1)
             {
                 Query query = new Query("UPDATE " +
-                        SQL.database +
+                        SQL.tableName +
                         "SET taskOwnerUUID=?, state=? " +
                         "WHERE requestID=?" +
                         ")"
@@ -124,9 +156,7 @@ public class ModReqCommand implements CommandExecutor
                 else
                 {
                     player.sendMessage("You have claimed task " + taskID);
-                    ModReq modreq = cache.getModReq(taskID);
-                    cache.removeModReq(taskID);
-                    cache.addModReq(modreq);
+                    cache.updateCache();
                     return;
                 }
 
@@ -137,6 +167,64 @@ public class ModReqCommand implements CommandExecutor
             }
         }
     }
+
+
+    /**
+     * Unclaim a modreq
+     * @param player Player unclaiming the modreq
+     * @param args arg pass through
+     */
+    private void unclaimReq(Player player, String[] args)
+    {
+        if (args.length < 2)
+        {
+            player.sendMessage(specifyID);
+            return;
+        }
+        else
+        {
+            int taskID = parseTaskID(args[1]);
+            if (taskID != -1)
+            {
+                Query query = new Query("UPDATE " +
+                        SQL.tableName +
+                        "SET taskOwnerUUID=?, state=? " +
+                        "WHERE requestID=?" +
+                        ")"
+                );
+                ResultSet results = request.executePreparedStatement(query, null, RequestState.UNCLAIMED.toString(), null);
+                int rows = 0;
+                try
+                {
+                    while (results.next())
+                    {
+                        rows++;
+                    }
+                }
+                catch (SQLException sqlException)
+                {
+                    player.sendMessage(prefix + "Your ModReq was not found!");
+                    return;
+                }
+                if (rows != 1)
+                {
+                    player.sendMessage(prefix + "Your ModReq was not found!");
+                }
+                else
+                {
+                    player.sendMessage("You have unclaimed task " + taskID);
+                    cache.updateCache();
+                    return;
+                }
+
+            }
+            else
+            {
+                player.sendMessage(prefix + "That is not a valid taskID!");
+            }
+        }
+    }
+
 
     /**
      * Prints the help menu

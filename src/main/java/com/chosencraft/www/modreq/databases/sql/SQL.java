@@ -21,7 +21,7 @@ public class SQL extends Database
 
     private Connection connection;
 
-    public static String database;
+    public static String tableName;
 
     /**
      * MySQL Wrapper
@@ -36,10 +36,12 @@ public class SQL extends Database
         // set params
         this.username = config.getString("database.mysql.username");
         this.password = config.getString("database.mysql.password");
-        this.database = config.getString("database.mysql.database");
+        String database = config.getString("database.mysql.database");
         String host =  config.getString("database.mysql.host");
         int port =  config.getInt("database.mysql.port");
         config.getValues(false);
+
+        this.tableName =  config.getString("database.mysql.table_prefix") + "_requestTable";
 
         // Added end string to go over HTTP instead of HTTPS because I was having issues setting up SSL for mySQL (website works fine though)
         // Also auto reconnect flag
