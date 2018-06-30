@@ -35,11 +35,34 @@ public class Cache
 
     /**
      * Remove a ModReq from the cache
-     * @param modReq
+     * @param modReqID
      */
-    public void removeModReq(ModReq modReq)
+    public void removeModReq(int modReqID)
     {
-        cache.remove(modReq);
+        for (ModReq req : cache)
+        {
+            if (req.getID() == modReqID)
+            {
+                cache.remove(modReqID);
+                break;
+            }
+        }
+    }
+
+    /**
+     *
+     * @param modreqID
+     * @return
+     */
+    public ModReq getModReq(int modreqID)
+    {
+        for (ModReq req : cache)
+        {
+            if (req.getID() == modreqID)
+            {
+                return req;
+            }
+        }
     }
 
     /**
