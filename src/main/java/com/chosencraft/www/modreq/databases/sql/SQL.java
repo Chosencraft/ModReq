@@ -21,6 +21,8 @@ public class SQL extends Database
 
     private Connection connection;
 
+    public static String database;
+
     /**
      * MySQL Wrapper
      *
@@ -34,7 +36,7 @@ public class SQL extends Database
         // set params
         this.username = config.getString("database.mysql.username");
         this.password = config.getString("database.mysql.password");
-        String database = config.getString("database.mysql.database");
+        this.database = config.getString("database.mysql.database");
         String host =  config.getString("database.mysql.host");
         int port =  config.getInt("database.mysql.port");
         config.getValues(false);

@@ -1,7 +1,13 @@
 package com.chosencraft.www.modreq.commands;
 
+import com.chosencraft.www.modreq.Cache;
+import com.chosencraft.www.modreq.ModReq;
 import com.chosencraft.www.modreq.ModReqMain;
+import com.chosencraft.www.modreq.databases.Query;
+import com.chosencraft.www.modreq.databases.sql.RequestInterface;
+import com.chosencraft.www.modreq.databases.sql.SQL;
 import com.chosencraft.www.modreq.utils.Logger;
+import com.chosencraft.www.modreq.utils.RequestState;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -9,11 +15,19 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerUnleashEntityEvent;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
 public class ModReqCommand implements CommandExecutor
 {
 
-    Logger log = ModReqMain.logger;
-    String prefix = ChatColor.GOLD + "[" + ChatColor.AQUA +"ModReq" + ChatColor.GOLD + "]" + ChatColor.RED ;
+    private Logger log = ModReqMain.logger;
+    private String prefix = ChatColor.GOLD + "[" + ChatColor.AQUA +"ModReq" + ChatColor.GOLD + "] " + ChatColor.RED ;
+    private  String specifyID = prefix + "Please specify a ModReq ID!";
+
+    private Cache cache = Cache.getInstance();
+
+    private  RequestInterface request = ModReqMain.request;
 
     @Override
     public boolean onCommand(CommandSender commandSender, Command command, String s, String[] args)
@@ -38,7 +52,7 @@ public class ModReqCommand implements CommandExecutor
                 printHelpMenu(player);
                 break;
             case "claim":
-
+                claimReq(player,args);
                 break;
             case "unclaim":
 
@@ -47,6 +61,14 @@ public class ModReqCommand implements CommandExecutor
 
                 break;
             case "info":
+
+                break;
+            case "list":
+
+            case "teleport":
+
+                break;
+            case "tp":
 
                 break;
 
@@ -58,8 +80,109 @@ public class ModReqCommand implements CommandExecutor
         return true;
     }
 
+    /**
+     * Claim a modreq
+     * @param player Player claiming the modreq
+     * @param args
+     */
+    private void claimReq(Player player, String[] args)
+    {
+        if (args.length < 2)
+        {
+            player.sendMessage(specifyID);
+            return;
+        }
+        else
+        {
+            int taskID = parseTaskID(args[1]);
+            if (taskID != -1)
+            {
+                Query query = new Query("UPDATE " +
+                        SQL.database +
+                        "SET taskOwnerUUID=?, state=? " +
+                        "WHERE requestID=?" +
+                        ")"
+                        );
+                ResultSet results = request.executePreparedStatement(query, player.getUniqueId().toString(), RequestState.CLAIMED.toString(), String.valueOf(taskID));
+                int rows = 0;
+                try
+                {
+                    while (results.next())
+                    {
+                        rows++;
+                    }
+                }
+                catch (SQLException sqlException)
+                {
+                    player.sendMessage(prefix + "Your ModReq was not found!");
+                    return;
+                }
+                if (rows != 1)
+                {
+                    player.sendMessage(prefix + "Your ModReq was not found!");
+                }
+                else
+                {
+                    player.sendMessage("You have claimed task " + taskID);
+                    ModReq modreq = cache.getModReq(taskID);
+                    cache.removeModReq(taskID);
+                    cache.addModReq(modreq);
+                    return;
+                }
+
+            }
+            else
+            {
+                player.sendMessage(prefix + "That is not a valid taskID!");
+            }
+        }
+    }
+
+    /**
+     * Prints the help menu
+     * @param sender Player to send the help menu to
+     */
     private void printHelpMenu(Player sender)
     {
         sender.sendMessage(prefix + "=========================================");
+        sender.sendMessage(formatCmd("help","Displays this help menu"));
+        sender.sendMessage(formatCmd("claim <id>","Take ownership of the modreq"));
+        sender.sendMessage(formatCmd("unclaim <id>","Stop taking ownership of the modreq"));
+        sender.sendMessage(formatCmd("reopen <id>", "Opens a previously closed modreq"));
+        sender.sendMessage(formatCmd("info <id>", "Displays information about the modreq"));
+        sender.sendMessage(formatCmd("claim <id>", "Claims the modreqt"));
+        sender.sendMessage(formatCmd("list", "Lists the currently open modreqs"));
+        sender.sendMessage(formatCmd("teleport", "Teleport to the place where the modreq was sent from!"));
+    }
+
+    /**
+     * Easily color formats command message
+     * @param command Command to be formatted
+     * @param message Message to be formatted
+     * @return A decently formatted message
+     */
+    private String formatCmd(String command, String message)
+    {
+        return ChatColor.GOLD + command + ChatColor.DARK_RED + " : " + ChatColor.GREEN + message;
+    }
+
+    /**
+     * Parse the given task ID
+     * @param taskIDString taskID to be parsed
+     * @return taskID or -1 if not a valid taskID
+     */
+    private int parseTaskID(String taskIDString)
+    {
+        int taskID;
+        try
+        {
+            taskID = Integer.parseInt(taskIDString);
+        }
+        catch (NumberFormatException numberException)
+        {
+            // all ModReq IDs will be positive
+            return -1;
+        }
+        return taskID;
     }
 }
